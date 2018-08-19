@@ -114,4 +114,42 @@ surveys_before_1995 <- surveys %>% filter(year <1995) %>%
 
 #Lets move to Mutate
 
-#often times there is a need 
+#often times there is a need to add a new column based on the existing columns
+# for eg ration of two columns or unit conversions
+
+#conversion from lbs to kg
+surveys %>% mutate(weight_kg = weight/1000)
+
+# as you might have noticed, it dropped three columns , how do I fix it
+# thats right, use select
+
+surveys %>% mutate(weight_kg = weight/1000) %>% select(weight_kg)
+
+
+# you can create multiple columns within the same call
+# for eg create a weight multiplied by 2
+surveys %>% mutate(weight_kg = weight/1000,weight_kg_2 = weight * 2)
+
+#as you have seee it again, if you want to get few rows on the top
+surveys %>% mutate(weight_kg = weight/1000,weight_kg_2 = weight * 2) %>% head()
+
+# random rows - sample_frac or sample_n
+surveys %>% mutate(weight_kg = weight/1000,weight_kg_2 = weight * 2) %>% sample_n(2)
+
+# we saw bunch on NAs, we can use the handy filter
+
+#drop nulls
+surveys %>% filter(!is.na(weight)) %>%
+  mutate(weight_kg = weight/1000) %>% select(weight_kg) %>% head()
+
+
+# time for challenge
+
+# create new dataframe , hindfoot_half length less than 30, should not contain NAs
+# and new column called hindfoot half, selects species_id column only
+
+surveys %>% filter(!is.na(hindfoot_length)) %>%
+  mutate(hindfoot_half = hindfoot_length/2) %>% filter(hindfoot_half < 30) %>% 
+  select(species_id,hindfoot_half) %>% head()
+
+#lets do next, split-apply-combine
