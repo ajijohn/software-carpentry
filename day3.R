@@ -146,10 +146,162 @@ surveys %>% filter(!is.na(weight)) %>%
 # time for challenge
 
 # create new dataframe , hindfoot_half length less than 30, should not contain NAs
-# and new column called hindfoot half, selects species_id column only
+# and new column called hindfoot half, selects species_id column and the new column
 
 surveys %>% filter(!is.na(hindfoot_length)) %>%
   mutate(hindfoot_half = hindfoot_length/2) %>% filter(hindfoot_half < 30) %>% 
   select(species_id,hindfoot_half) %>% head()
 
-#lets do next, split-apply-combine
+#lets do next, split-apply-combine paradiagm
+# this is somewhat a common requirement
+# concept is split the data into groups, apply some analysis to each group, 
+# and then combine
+
+# dplyr offers a convenient function to do grouping 'group_by'
+# group_by takes arguments that are categorical
+# summarize() is normally which is sttached next to it
+
+# lets try that
+# we will group by sex, and then we will calculate the mean weight for each sex
+
+surveys %>% 
+  group_by(sex) %>%
+    summarise(mean_weight = mean(weight,na.rm = TRUE))
+
+# you might have noticed I put in the na.rm=TRUE , na usually put in when
+# there is a missing value, and when the variable value is missing
+# the summary function escapes with 'NA',
+# to prevent that default behaviour, we add na.rm=TRUE
+
+# We can also group by muliple columns its grouped in that order
+# lets next group by sex, and species id
+
+surveys %>% 
+  group_by(sex,species_id) %>%
+  summarise(mean_weight = mean(weight,na.rm = TRUE))
+
+# I want to focus your attention on the last few rows
+# we have head(), tail()
+
+# if we use tail(), we see NaN for some of the rows
+# We see that because we have the weight missing for some of the
+# animals, they escaped before the sex could be determined
+
+#we can do filter() to remove it beforehand
+
+surveys %>% 
+  filter(!is.na(weight)) %>%
+     group_by(sex,species_id) %>%
+      summarise(mean_weight = mean(weight))
+
+#notice, I've not used na.rm=TRUE, not required anymore as we are filtering
+# na.rm 
+
+#also notice is that the dosplay out put never runs off the screen,
+# you can uise the print() function 
+surveys %>% 
+  filter(!is.na(weight)) %>%
+    group_by(sex,species_id) %>%
+     summarise(mean_weight = mean(weight)) %>%
+      print(5)
+
+# might mention top_n()
+# top n rows in a group
+# once the data is grouped, we can do summarize odditional
+# variables and call other summary functions
+
+
+# lets add the minimum weight
+
+surveys %>%
+  filter(!is.na(weight)) %>%
+    group_by(sex,species_id) %>%
+      summarise(mean_weight = mean(weight), min_weight = min(weight))
+
+# as an additional todo, add max function
+
+# moving on, sometimes it is necessary
+# rearrange the result of the query 
+
+#uses - inspect the values
+
+# foe eg, we want to look into the lighter values
+
+#how should we do it ?
+
+surveys %>%
+  filter(!is.na(weight)) %>%
+    group_by(sex,species_id) %>%
+     summarise(mean_weight = mean(weight), min_weight = min(weight)) %>%
+      arrange(min_weight)
+
+# by default - ascending - lower value first
+# if you want to do descending - decreasing order of mean_weight
+
+surveys %>%
+  filter(!is.na(weight)) %>%
+    group_by(sex,species_id) %>%
+      summarise(mean_weight = mean(weight), min_weight = min(weight)) %>%
+        arrange(desc(mean_weight))
+
+# moving on
+# Sometimes, when working with data, we need to know how many observations found for a factor or
+# a group of factors. dplyr provides a convenient function called count()
+
+# for eg, number of rows by sex
+
+surveys %>%
+   count(sex)
+
+# basically what it did was did group by and applied a summary function
+
+# i.e
+
+surveys %>%
+  group_by(sex) %>%
+   summarise(count=n())
+
+# with count(), it provides a sort argument
+# default is high to low (ascending)
+surveys %>%
+   count(sex,sort = TRUE )
+
+# if we want to count combination of factors, we could pass the additional one along
+# for eg lets want to add species
+
+surveys %>%
+   count(sex,species)
+
+# we can next arrange by a number of criteria
+# for eg, alphabetic by species, but descending with number of them
+surveys %>%
+   count(sex,species) %>%
+     arrange(species,desc(n))
+
+# we notice 75 of 'albigula' have sex which is not determined.
+
+
+# time for challenge
+
+#1 how many animals were caught in each plot_type
+surveys %>% count(plot_type)
+
+#2 use group_by and summarise() to find mean, minand max hindfoot length for each species (use species_id)
+# also add number of observations for each
+surveys %>% filter(!is.na(hindfoot_length)) %>%
+  group_by(species_id) %>% 
+  summarise(min_hfl=min(hindfoot_length),max_hfl=max(hindfoot_length),mean_hfl=mean(hindfoot_length),noofob= n())
+     
+
+#3 what was the heaviest animal measured for each year(year)? Return the columns year, genus, species_id and weight
+surveys %>% filter(!is.na(weight)) %>%
+  group_by(year) %>%
+    filter(weight == max(weight)) %>%
+     select(year,genus,species_id,weight) %>%
+      arrange(weight)
+  
+
+#surveys %>% filter(!is.na(weight)) %>% group_by(year) %>% top_n(1,weight) %>%
+#  select(year,genus,species_id,weight)
+
+
