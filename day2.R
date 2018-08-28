@@ -1,3 +1,17 @@
+#follow-up from 1st day
+
+# what are variables
+# what are classes
+# arrays immutable ?
+
+# repeat the questions when asked
+# if we have time leftover
+#helpful forays - writing functions
+#               - writing packages
+
+#ls() - list the veiables in space
+
+
 download.file("https://ndownloader.figshare.com/files/2292169",
               "data/portal_data_joined.csv")
 
