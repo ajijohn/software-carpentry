@@ -5,7 +5,7 @@ getwd()
 
 #keyboard shortcut
 
-#carat - shortcut
+# carat - shortcut
 # press escape to leave the open +
 # stackoverflow -
 
@@ -71,3 +71,11 @@ animals[animals %in% c('rat','dog')]
 animals[!(animals  %in% c('rat','dog'))]
 #handling NAs
 # reprcussions of NAs
+
+heights <- c(63, 69, 60, 65, NA, 68, 61, 70, 61, 59, 64, 69, 63, 63, NA, 72, 65, 64, 70, 63, 65)
+
+median(heights,na.rm=TRUE)
+#with NAs
+length(heights[heights >65])
+
+#without

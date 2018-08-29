@@ -6,7 +6,7 @@
 
 # repeat the questions when asked
 # if we have time leftover
-#helpful forays - writing functions
+# helpful forays - writing functions
 #               - writing packages
 
 #ls() - list the veiables in space
