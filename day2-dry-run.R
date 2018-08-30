@@ -43,10 +43,10 @@ summary(surveys)
 
 # generic functions, they can be used for most ttypes of objects
 
-#chsallenge 
-# Q what is the class of object ;surveys'
+#challenge 
+# Q what is the class of object 'surveys'
 # Q How many rows and columns - 
-# Q how many species have been recorded n- 48
+# Q how many species have been recorded 
 # Q how many rows have complete data ? or don't NAs ? (Not required)
 
 
