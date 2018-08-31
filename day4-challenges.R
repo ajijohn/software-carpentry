@@ -8,5 +8,18 @@
 
 #2
 #Challenge
-#Q Scatter plot of weight(y) over species _id(x), with plot types showing in diff color
-#
+#Q Scatter plot of weight(y-axis) over species _id(x-axis), with plot types showing in diff color
+# 
+
+#3
+#Challenges ( exploring the shape of distributions)
+# Q(a) Check shape (use geom_violin() ) - beneficial to see bimodality in distribution
+# Q(b) Rescale a variable - to better distribute the observations in the space of the plot, use scale_y_log10()
+# Q(c) Check some other variable i.e. explore its distribution, use hindfoot_length . 
+#       - Use boxplot to see distribution of hindfoot_length
+#       - Overlay it on top of a jitter layer of measurements
+#       - color the datapoints with the plot_id (showing from where the observation was taken)
+
+#4 Theme customizations
+#Challenge (Take few minutes to experiment with other options)
+
