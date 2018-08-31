@@ -1,6 +1,6 @@
 #day 4 challenges
 
-#Challenge
+#Warm-up
 # Q(a) Create a new dataframe from surveys , remove observations with missing(weight,hindfoot_length and sex)
 # Q(b)  select only those species for which the count >=50
 # Q(c)  Filter only those species from (b) with  criteria from (a), and write it to folder "data_output/surveys_complete.csv"
