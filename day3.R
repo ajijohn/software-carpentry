@@ -30,7 +30,7 @@ str(surveys)
 View(surveys)
 
 
-# look at class of the data
+# look at class of the data, not data.frame anymore, but a wrapper on it.
 
 class(surveys)
 
@@ -38,7 +38,7 @@ class(surveys)
 # differences are
 # - columns of class character are never converted to factor
 # - displays data type of each column under that , and only few rows, as many
-# as that can fit on the screen
+# - as that can fit on the screen
 
 #next we will learn
 
@@ -62,7 +62,7 @@ filter(surveys,year==1995)
 
 #segway to pipes
 
-#What if you wanted to do select and filter at the sametime
+# What if you wanted to do select and filter at the sametime
 
 # three ways
 # way 1 - intermediate or two step
@@ -76,7 +76,7 @@ surveys_sml <- select(surveys2,species_id,sex,weight)
 # lets check our result
 head(surveys_sml)
 
-#next way is to nest it
+# next way is to nest it
 # so within the select we filter
 
 surveys_sml <- select(filter(surveys,weight < 5),species_id,sex,weight)
@@ -89,7 +89,7 @@ head(surveys_sml)
 # takes the output of one function and sends it to the next
 # very useful when douing many things to a same dataset
 
-#pipes look like %>%, part of magrittr pkg but installed with dplyr
+# pipes look like %>%, part of magrittr pkg but installed with dplyr
 # takes the object on the left and sends it to the right, so not necssary
 # to include the first parameter
 
@@ -106,16 +106,21 @@ surveys_sml <- surveys %>% filter(weight <5) %>% select(species_id,sex,weight)
 
 
 #time for challenge
-# include animals collected before 1995 and retain only columns year, sex and weight
+# Q include animals collected before 1995 and retain only columns year, sex and weight
 
 surveys_before_1995 <- surveys %>% filter(year <1995) %>% 
   select(year,sex,weight)
 
+# Q subset the surveys data to include female animals collected before 1980 
+#    and retain only the columns year, sex, and weight.
+
+surveys_before_1980_female <- surveys %>% filter(year <1980 & sex == "F") %>% 
+  select(year,sex,weight)
 
 #Lets move to Mutate
 
-#often times there is a need to add a new column based on the existing columns
-# for eg ration of two columns or unit conversions
+# often times there is a need to add a new column based on the existing columns
+# for eg ratio of two columns or unit conversions
 
 #conversion from lbs to kg
 surveys %>% mutate(weight_kg = weight/1000)
@@ -145,10 +150,17 @@ surveys %>% filter(!is.na(weight)) %>%
 
 # time for challenge
 
-# create new dataframe , hindfoot_half length less than 30, should not contain NAs
+# create new dataframe with following criteria, hindfoot_half length less than 30, should not contain NAs
 # and new column called hindfoot half, selects species_id column and the new column
 
 surveys %>% filter(!is.na(hindfoot_length)) %>%
+  mutate(hindfoot_half = hindfoot_length/2) %>% filter(hindfoot_half < 30) %>% 
+  select(species_id,hindfoot_half) %>% head()
+# Q create new dataframe with following criteria, male, hindfoot_half length less than 30, should not contain NAs
+# the output contains new column called hindfoot half and species_id
+# select species_id column and the new column
+
+surveys %>% filter(!is.na(hindfoot_length) & sex=="M") %>%
   mutate(hindfoot_half = hindfoot_length/2) %>% filter(hindfoot_half < 30) %>% 
   select(species_id,hindfoot_half) %>% head()
 
@@ -197,7 +209,7 @@ surveys %>%
 #notice, I've not used na.rm=TRUE, not required anymore as we are filtering
 # na.rm 
 
-#also notice is that the dosplay out put never runs off the screen,
+#also notice is that the display out put never runs off the screen,
 # you can uise the print() function 
 surveys %>% 
   filter(!is.na(weight)) %>%
@@ -253,10 +265,13 @@ surveys %>%
 surveys %>%
    count(sex)
 
+# By two factors
+surveys %>%
+  count(plot_id,sex)
+
 # basically what it did was did group by and applied a summary function
 
 # i.e
-
 surveys %>%
   group_by(sex) %>%
    summarise(count=n())
@@ -304,4 +319,56 @@ surveys %>% filter(!is.na(weight)) %>%
 #surveys %>% filter(!is.na(weight)) %>% group_by(year) %>% top_n(1,weight) %>%
 #  select(year,genus,species_id,weight)
 
+#Next we will cover reshaping your data
+# rows become columns - spread
+# colums become rows - gather
 
+# compare mean weights of species between plots ?
+
+#spread() takes three main args - (data, key column -> new column, value column -> fill the new column)
+
+# we will use spread to transform, but lets first create the summary by species and plot
+
+surveys_gw <- surveys %>% filter(!is.na(weight)) %>%
+              group_by(genus,plot_id) %>%
+              summarise(mean_weight = mean(weight))
+
+
+# we then use pipes to do spread
+
+surveys_spread <- surveys_gw %>% spread(key=genus,value = mean_weight)
+str(surveys_spread)
+
+#to remove NAs use fill
+surveys_spread <- surveys_gw %>% spread(key=genus,value = mean_weight,fill=0)
+
+
+#Gathering is opposite of spread
+
+# four main args
+
+# gather(data,key column-> from column names, column variables to create and fill, names of the columns to fill)
+
+# to recreate surveys_gw from survey_spread
+
+surveys_gather <- gather(surveys_spread,key = genus,value=mean_weight,-plot_id)
+
+# Use : to include if in a row
+surveys_gather <- gather(surveys_spread,key = genus,value=mean_weight,Baiomys:Spermophilus)
+
+# Q Spread the surveys data frame with year as columns, plot_id as rows, and 
+#the number of genera per plot as the values. You will need to summarize before reshaping, and use the 
+#function n_distinct() to get the number of unique genera within a particular chunk of data. 
+#It’s a powerful function! See ?n_distinct for more.
+
+rich_time <- surveys %>%
+  group_by(plot_id, year) %>%
+  summarize(n_genera = n_distinct(genus)) %>%   spread(year, n_genera)
+
+  
+# Q Now take that data frame and gather() it again, so each row is a unique plot_id by year combination.
+
+rich_time %>%
+  gather(year, n_genera, -plot_id)
+
+# Talk about exporting
