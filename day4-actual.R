@@ -198,15 +198,86 @@ surveys_complete %>% count(year,sex, species_id) %>%
 surveys_complete %>% count(year,sex, species_id) %>%
   ggplot(aes(x=year,y=n,color=sex)) + geom_line() +
   facet_grid(sex~species_id) + theme(axis.text.x = element_text(size = 10,color = "red",angle = 90)) +
-  labs(x="Year of observation", y="Number of Species",title="Yearly Species distribution")
+  labs(x="Year of observation", y="Number of Species",title="Yearly Species distribution") +
+  
 
 # Define your own themes
+# justifying the plot title
+  
 theme_ideal <- theme(axis.text.x = element_text(size = 10,color = "red",angle = 90),
                      axis.text.y = element_text(size=10,color="blue"),
                      text= element_text(size=20),
-                     axis.title = element_text(size=25)
+                     axis.title = element_text(size=25),
+                     plot.title = element_text(size=25,hjust = 0.5)
                      ) 
 
+#writing functions which gives multiple themes 
+
+my_t <- function ()
+{
+  
+  theme_ideal <- theme(axis.text.x = element_text(size = 10,color = "red",angle = 90),
+                       axis.text.y = element_text(size=10,color="blue"),
+                       text= element_text(size=20),
+                       axis.title = element_text(size=25),
+                       plot.title = element_text(size=25,hjust = 0.5)
+  ) 
+  
+  return(theme_ideal)
+}
+
+
+# talk about color scales (using scale color manual)
+surveys_complete %>% group_by(sex,year,species_id) %>%
+  summarise(mean_weight = mean(weight)) %>%
+  ggplot(aes(x=year,y=mean_weight,color=sex)) + geom_line() +
+  scale_color_manual(values = c('red','blue'))
+
+# explore rgb 
+# color brewer palletes (Cynthia Brewer)
+surveys_complete %>% group_by(sex,year,species_id) %>%
+  summarise(mean_weight = mean(weight)) %>%
+  ggplot(aes(x=year,y=mean_weight,color=sex)) + geom_line() +
+  scale_color_brewer(palette = 'Set1') 
+
+#lts plot surveys complete
+#continous color palette
+surveys_complete %>% 
+  ggplot(aes(x=weight,y=hindfoot_length,color=year)) + geom_point(alpha=0.1) +
+  scale_color_continuous(low='white', high = 'dark red')
+
+#modify the color scale
+
+surveys_complete %>% 
+  ggplot(aes(x=weight,y=hindfoot_length,color=year)) + geom_point(alpha=0.1) +
+  scale_color_distiller(palette = 'Set1')
+
+
+##modifying legends
+surveys_complete %>% 
+  ggplot(aes(x=weight,y=hindfoot_length,color=year)) + geom_point(alpha=0.1) +
+  scale_color_distiller(palette = 'Set1',name="year of observation")
+
+# filling the difference between two lines
+#add paneling
+library(gridExtra)
+# or you could use 'cowplot'
+# plot between two years
+
+species_box <- surveys_complete %>% 
+  ggplot(aes(x=species_id,y=weight)) + geom_boxplot() + scale_y_log10() + theme_classic()
+
+species_count <- surveys_complete %>% count(year,species_id) %>% 
+  ggplot(aes(x=year,y=n,color=species_id)) + geom_point() + theme_classic()
+
+grid.arrange(species_box,species_count, ncol=2,widths= c(1,1.5))
+# call your func with theme
+
+# apply your own theme as a funtion 
+surveys_complete %>% count(year,sex, species_id) %>%
+  ggplot(aes(x=year,y=n,color=sex)) + geom_line() +
+  facet_grid(species_id~.) + my_t() +
+  labs(x="Year of observation", y="Number of Species",title="Yearly Species distribution")
 
 # apply your own theme
 surveys_complete %>% count(year,sex, species_id) %>%
@@ -220,7 +291,14 @@ dist_by_species <- surveys_complete %>% count(year,sex, species_id) %>%
   ggplot(aes(x=year,y=n,color=sex)) + geom_line() +
   facet_grid(species_id~.) + theme_ideal +
   labs(x="Year of observation", y="Number of Species",title="Yearly Species distribution") 
-  
+
+#modifying legends
+dist_by_species <- surveys_complete %>% count(year,sex, species_id) %>%
+  ggplot(aes(x=year,y=n,color=sex)) + geom_line() +
+  facet_grid(species_id~.) + theme_ideal +
+  labs(x="Year of observation", y="Number of Species",title="Yearly Species distribution") 
+
+
 ggsave("fig_output/dist_by_species.png",dist_by_species)
 
 
