@@ -174,6 +174,7 @@ surveys_complete %>% count(year,sex, species_id) %>%
 
 # facet.grid() gives the option to specify the rows and columns
 #only one row, multiple columns 
+#. is one row
 surveys_complete %>% count(year,sex, species_id) %>%
   ggplot(aes(x=year,y=n,color=sex)) + geom_line() +
   facet_grid(.~species_id) + theme_minimal() +
@@ -186,12 +187,26 @@ surveys_complete %>% count(year,sex, species_id) %>%
   labs(x="Year of observation", y="Number of Species",title="Yearly Species distribution")
 
 
+# sex and species ( rows - sex, and columns as species)
+# multiple rows
+surveys_complete %>% count(year,sex, species_id) %>%
+  ggplot(aes(x=year,y=n,color=sex)) + geom_line() +
+  facet_grid(sex~species_id) + theme_minimal() +
+  labs(x="Year of observation", y="Number of Species",title="Yearly Species distribution")
+
+# fix the x labels
+surveys_complete %>% count(year,sex, species_id) %>%
+  ggplot(aes(x=year,y=n,color=sex)) + geom_line() +
+  facet_grid(sex~species_id) + theme(axis.text.x = element_text(size = 10,color = "red",angle = 90)) +
+  labs(x="Year of observation", y="Number of Species",title="Yearly Species distribution")
+
 # Define your own themes
 theme_ideal <- theme(axis.text.x = element_text(size = 10,color = "red",angle = 90),
                      axis.text.y = element_text(size=10,color="blue"),
                      text= element_text(size=20),
                      axis.title = element_text(size=25)
                      ) 
+
 
 # apply your own theme
 surveys_complete %>% count(year,sex, species_id) %>%
