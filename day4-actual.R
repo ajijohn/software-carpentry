@@ -268,7 +268,7 @@ species_box <- surveys_complete %>%
   ggplot(aes(x=species_id,y=weight)) + geom_boxplot() + scale_y_log10() + theme_classic()
 
 species_count <- surveys_complete %>% count(year,species_id) %>% 
-  ggplot(aes(x=year,y=n,color=species_id)) + geom_point() + theme_classic()
+  ggplot(aes(x=year,y=n,color=species_id)) + geom_line() + theme_classic()
 
 grid.arrange(species_box,species_count, ncol=2,widths= c(1,1.5))
 # call your func with theme
